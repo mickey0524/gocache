@@ -10,6 +10,12 @@ type kvCache struct {
 	sync.RWMutex
 }
 
+func initKvCache() *kvCache {
+	return &kvCache{
+		data: make(map[string]interface{}),
+	}
+}
+
 func (c *kvCache) Get(key string) (interface{}, error) {
 	c.RLock()
 	defer c.RUnlock()
