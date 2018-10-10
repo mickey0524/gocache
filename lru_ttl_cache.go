@@ -67,8 +67,8 @@ func (c *lruTtlCache) Set(key string, value interface{}) error {
 		c.index[key] = &lruTtlCacheIdx{
 			value:      value,
 			expireTime: time.Now().Unix() + c.ttl,
-			visitPtr:   c.cacheList.PushFront(key),
-			timePtr:    c.timeOrderList.PushFront(key),
+			visitPtr:   c.cacheList.PushBack(key),
+			timePtr:    c.timeOrderList.PushBack(key),
 		}
 	}
 

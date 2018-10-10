@@ -15,7 +15,7 @@ type lruCache struct {
 	cap       int64
 	index     map[string]*lruCacheIdx
 	cacheList *list.List
-	sync.RWMutex
+	sync.Mutex
 }
 
 func initLRUCache(cap int64) *lruCache {
@@ -27,8 +27,8 @@ func initLRUCache(cap int64) *lruCache {
 }
 
 func (c *lruCache) Get(key string) (interface{}, error) {
-	c.RLock()
-	defer c.RUnlock()
+	c.Lock()
+	defer c.Unlock()
 
 	if idx, ok := c.index[key]; ok {
 		c.cacheList.MoveToBack(idx.pointer)
