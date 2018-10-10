@@ -31,6 +31,7 @@ func (c *lruCache) Get(key string) (interface{}, error) {
 	defer c.RUnlock()
 
 	if idx, ok := c.index[key]; ok {
+		c.cacheList.MoveToBack(idx.pointer)
 		return idx.value, nil
 	}
 

@@ -40,6 +40,7 @@ func (c *lruTtlCache) Get(key string) (interface{}, error) {
 	c.removeTimeOutKey()
 
 	if idx, ok := c.index[key]; ok {
+		c.cacheList.MoveToBack(idx.visitPtr)
 		return idx.value, nil
 	}
 
