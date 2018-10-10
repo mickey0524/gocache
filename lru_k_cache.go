@@ -14,7 +14,7 @@ type lruKCacheIdx struct {
 type lruKCacheHistoryIdx struct {
 	value     interface{}
 	pointer   *list.Element
-	touchTime int64
+	touchTime int
 }
 
 type lruKCache struct {
@@ -22,12 +22,12 @@ type lruKCache struct {
 	cacheList    *list.List
 	historyIndex map[string]*lruKCacheHistoryIdx
 	historyList  *list.List
-	cap          int64
-	k            int64
+	cap          int
+	k            int
 	sync.Mutex
 }
 
-func initLRUKCache(cap int64, k int64) *lruKCache {
+func initLRUKCache(cap int, k int) *lruKCache {
 	return &lruKCache{
 		cacheIndex:   make(map[string]*lruKCacheIdx),
 		historyIndex: make(map[string]*lruKCacheHistoryIdx),
@@ -48,7 +48,7 @@ func (c *lruKCache) Get(key string) (interface{}, error) {
 	if historyIdx, ok := c.historyIndex[key]; ok {
 		historyIdx.touchTime++
 		if historyIdx.touchTime == c.k {
-			if int64(c.cacheList.Len()) == c.cap {
+			if c.cacheList.Len() == c.cap {
 				c.removeCacheKey(c.cacheList.Front().Value.(string))
 			}
 			c.cacheIndex[key] = &lruKCacheIdx{
@@ -80,7 +80,7 @@ func (c *lruKCache) Set(key string, value interface{}) error {
 		return nil
 	}
 
-	if int64(c.historyList.Len()) == c.cap {
+	if c.historyList.Len() == c.cap {
 		c.removeHistoryKey(c.historyList.Front().Value.(string))
 	}
 	c.historyIndex[key] = &lruKCacheHistoryIdx{

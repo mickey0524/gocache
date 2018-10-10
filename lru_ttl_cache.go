@@ -9,21 +9,21 @@ import (
 
 type lruTtlCacheIdx struct {
 	value      interface{}
-	expireTime int64
+	expireTime int
 	visitPtr   *list.Element
 	timePtr    *list.Element
 }
 
 type lruTtlCache struct {
-	cap           int64
-	ttl           int64
+	cap           int
+	ttl           int
 	index         map[string]*lruTtlCacheIdx
 	cacheList     *list.List
 	timeOrderList *list.List
 	sync.Mutex
 }
 
-func initLRUTtlCache(cap int64, ttl int64) *lruTtlCache {
+func initLRUTtlCache(cap int, ttl int) *lruTtlCache {
 	return &lruTtlCache{
 		cap:           cap,
 		ttl:           ttl,
@@ -55,18 +55,18 @@ func (c *lruTtlCache) Set(key string, value interface{}) error {
 
 	if idx, ok := c.index[key]; ok {
 		idx.value = value
-		idx.expireTime = time.Now().Unix() + c.ttl
+		idx.expireTime = int(time.Now().Unix()) + c.ttl
 		c.cacheList.MoveToBack(idx.visitPtr)
 		c.timeOrderList.MoveToBack(idx.timePtr)
 		return nil
 	}
 
-	if int64(c.cacheList.Len()) == c.cap {
+	if c.cacheList.Len() == c.cap {
 		frontEleKey := c.cacheList.Front().Value.(string)
 		c.remove(frontEleKey)
 		c.index[key] = &lruTtlCacheIdx{
 			value:      value,
-			expireTime: time.Now().Unix() + c.ttl,
+			expireTime: int(time.Now().Unix()) + c.ttl,
 			visitPtr:   c.cacheList.PushBack(key),
 			timePtr:    c.timeOrderList.PushBack(key),
 		}
@@ -88,7 +88,7 @@ func (c *lruTtlCache) removeTimeOutKey() error {
 	for {
 		frontEleKey := c.timeOrderList.Front().Value.(string)
 		frontIdx := c.index[frontEleKey]
-		if frontIdx.expireTime > time.Now().Unix() {
+		if frontIdx.expireTime > int(time.Now().Unix()) {
 			return nil
 		}
 		c.remove(frontEleKey)

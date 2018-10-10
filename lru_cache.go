@@ -12,13 +12,13 @@ type lruCacheIdx struct {
 }
 
 type lruCache struct {
-	cap       int64
+	cap       int
 	index     map[string]*lruCacheIdx
 	cacheList *list.List
 	sync.Mutex
 }
 
-func initLRUCache(cap int64) *lruCache {
+func initLRUCache(cap int) *lruCache {
 	return &lruCache{
 		cap:       cap,
 		index:     make(map[string]*lruCacheIdx),
@@ -48,7 +48,7 @@ func (c *lruCache) Set(key string, value interface{}) error {
 		return nil
 	}
 
-	if int64(c.cacheList.Len()) == c.cap {
+	if c.cacheList.Len() == c.cap {
 		removeKey := c.cacheList.Front().Value.(string)
 		c.remove(removeKey)
 	}
