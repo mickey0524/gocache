@@ -14,10 +14,15 @@ type goCache struct {
 func NewGoCache(valueGetter func(string) (interface{}, error),
 	valueMutiGetter func([]string) (map[string]interface{}, error),
 	cap int,
-	ttl int) *goCache {
+	ttl int,
+	k int) *goCache {
 	var cache Cache
 
 	switch {
+	case cap > 0 && ttl > 0 && k > 0:
+		cache = initLRUKTtlCache(cap, k, ttl)
+	case cap > 0 && k > 0:
+		cache = initLRUKCache(cap, k)
 	case cap > 0 && ttl > 0:
 		cache = initLRUTtlCache(cap, ttl)
 	case cap > 0:
