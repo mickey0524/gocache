@@ -42,6 +42,9 @@ func (c *goCache) Get(key string) (interface{}, error) {
 	value, err := c.cache.Get(key)
 	if err != nil && c.valueGetter != nil {
 		value, err = c.valueGetter(key)
+		if err == nil {
+			c.cache.Set(key, value)
+		}
 	}
 
 	return value, err
@@ -66,6 +69,7 @@ func (c *goCache) MGet(keys []string) (map[string]interface{}, error) {
 			if err == nil {
 				for k, v := range kvs {
 					res[k] = v
+					c.cache.Set(k, v)
 				}
 			} else {
 				for _, k := range notFoundKeys {
@@ -78,6 +82,7 @@ func (c *goCache) MGet(keys []string) (map[string]interface{}, error) {
 				v, err := c.valueGetter(k)
 				if err == nil {
 					res[k] = v
+					c.cache.Set(k, v)
 				} else {
 					missKeys = append(missKeys, k)
 				}
