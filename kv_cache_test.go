@@ -1,12 +1,14 @@
 package gocache
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestKVCache(t *testing.T) {
+	fmt.Println("test kv cache")
 	gocache := NewGoCache(nil, nil, 0, 0, 0)
 	assert.NotEqual(t, gocache, nil)
 
@@ -19,6 +21,16 @@ func TestKVCache(t *testing.T) {
 	value, err = gocache.cache.Get("golang")
 	assert.Equal(t, value, "golang")
 	assert.Nil(t, err)
+
+	values, err := gocache.MGet([]string{"golang", "cache"})
+	assert.Nil(t, err)
+	for k, v := range values {
+		if k == "golang" {
+			assert.Equal(t, k, v)
+		} else {
+			assert.Nil(t, v)
+		}
+	}
 
 	valueGetter := func(key string) (interface{}, error) {
 		return key, nil
@@ -43,7 +55,7 @@ func TestKVCache(t *testing.T) {
 	assert.Equal(t, value, "cache")
 	assert.Nil(t, err)
 
-	values, err := gocache.MGet([]string{"c1", "c2"})
+	values, err = gocache.MGet([]string{"c1", "c2"})
 	assert.Nil(t, err)
 	for k, v := range values {
 		assert.Equal(t, k, v)
