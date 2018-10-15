@@ -30,7 +30,9 @@ type lruKCache struct {
 func initLRUKCache(cap int, k int) *lruKCache {
 	return &lruKCache{
 		cacheIndex:   make(map[string]*lruKCacheIdx),
+		cacheList:    list.New(),
 		historyIndex: make(map[string]*lruKCacheHistoryIdx),
+		historyList:  list.New(),
 		cap:          cap,
 		k:            k,
 	}
@@ -56,9 +58,9 @@ func (c *lruKCache) Get(key string) (interface{}, error) {
 				pointer: c.cacheList.PushBack(key),
 			}
 			c.removeHistoryKey(key)
+		} else {
+			c.historyList.MoveToBack(historyIdx.pointer)
 		}
-		c.historyList.MoveToBack(historyIdx.pointer)
-		return historyIdx.value, nil
 	}
 
 	return nil, fmt.Errorf("key %s not found", key)
@@ -84,8 +86,9 @@ func (c *lruKCache) Set(key string, value interface{}) error {
 		c.removeHistoryKey(c.historyList.Front().Value.(string))
 	}
 	c.historyIndex[key] = &lruKCacheHistoryIdx{
-		value:   value,
-		pointer: c.historyList.PushBack(key),
+		value:     value,
+		pointer:   c.historyList.PushBack(key),
+		touchTime: 0,
 	}
 
 	return nil

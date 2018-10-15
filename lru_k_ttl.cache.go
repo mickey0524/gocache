@@ -37,11 +37,15 @@ type lruKTtlCache struct {
 
 func initLRUKTtlCache(cap int, k int, ttl int) *lruKTtlCache {
 	return &lruKTtlCache{
-		cacheIndex:   make(map[string]*lruKTtlCacheIdx),
-		historyIndex: make(map[string]*lruKTtlCacheHistoryIdx),
-		cap:          cap,
-		k:            k,
-		ttl:          ttl,
+		cacheIndex:           make(map[string]*lruKTtlCacheIdx),
+		cacheList:            list.New(),
+		timeOrderCacheList:   list.New(),
+		historyIndex:         make(map[string]*lruKTtlCacheHistoryIdx),
+		historyList:          list.New(),
+		timeOrderHistoryList: list.New(),
+		cap:                  cap,
+		k:                    k,
+		ttl:                  ttl,
 	}
 }
 
