@@ -75,9 +75,9 @@ func (c *lruKTtlCache) Get(key string) (interface{}, error) {
 				timePtr:    c.timeOrderCacheList.PushBack(key),
 			}
 			c.removeHistoryKey(key)
+		} else {
+			c.historyList.MoveToBack(historyIdx.visitPtr)
 		}
-		c.historyList.MoveToBack(historyIdx.visitPtr)
-		return historyIdx.value, nil
 	}
 
 	return nil, fmt.Errorf("key %s not found", key)
@@ -123,7 +123,7 @@ func (c *lruKTtlCache) Set(key string, value interface{}) error {
 func (c *lruKTtlCache) removeHistoryKey(key string) error {
 	historyIdx := c.historyIndex[key]
 	c.historyList.Remove(historyIdx.visitPtr)
-	c.historyList.Remove(historyIdx.timePtr)
+	c.timeOrderHistoryList.Remove(historyIdx.timePtr)
 	delete(c.historyIndex, key)
 
 	return nil
@@ -132,7 +132,7 @@ func (c *lruKTtlCache) removeHistoryKey(key string) error {
 func (c *lruKTtlCache) removeCacheKey(key string) error {
 	cacheIdx := c.cacheIndex[key]
 	c.cacheList.Remove(cacheIdx.visitPtr)
-	c.cacheList.Remove(cacheIdx.timePtr)
+	c.timeOrderCacheList.Remove(cacheIdx.timePtr)
 	delete(c.cacheIndex, key)
 
 	return nil
