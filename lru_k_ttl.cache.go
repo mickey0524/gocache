@@ -135,23 +135,31 @@ func (c *lruKTtlCache) removeCacheKey(key string) error {
 }
 
 func (c *lruKTtlCache) removeTimeOutHistoryKey() error {
-	for {
+	length := c.timeOrderHistoryList.Len()
+
+	for i := 0; i < length; i++ {
 		frontKey := c.timeOrderHistoryList.Front().Value.(string)
 		frontIdx := c.historyIndex[frontKey]
 		if frontIdx.expireTime > int(time.Now().Unix()) {
-			return nil
+			break
 		}
 		c.removeHistoryKey(frontKey)
 	}
+
+	return nil
 }
 
 func (c *lruKTtlCache) removeTimeOutCacheKey() error {
-	for {
+	length := c.timeOrderCacheList.Len()
+
+	for i := 0; i < length; i++ {
 		frontKey := c.timeOrderCacheList.Front().Value.(string)
 		frontIdx := c.cacheIndex[frontKey]
 		if frontIdx.expireTime > int(time.Now().Unix()) {
-			return nil
+			break
 		}
 		c.removeCacheKey(frontKey)
 	}
+
+	return nil
 }

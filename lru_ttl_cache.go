@@ -64,12 +64,13 @@ func (c *lruTtlCache) Set(key string, value interface{}) error {
 	if c.cacheList.Len() == c.cap {
 		frontEleKey := c.cacheList.Front().Value.(string)
 		c.remove(frontEleKey)
-		c.index[key] = &lruTtlCacheIdx{
-			value:      value,
-			expireTime: int(time.Now().Unix()) + c.ttl,
-			visitPtr:   c.cacheList.PushBack(key),
-			timePtr:    c.timeOrderList.PushBack(key),
-		}
+	}
+
+	c.index[key] = &lruTtlCacheIdx{
+		value:      value,
+		expireTime: int(time.Now().Unix()) + c.ttl,
+		visitPtr:   c.cacheList.PushBack(key),
+		timePtr:    c.timeOrderList.PushBack(key),
 	}
 
 	return nil
@@ -85,12 +86,16 @@ func (c *lruTtlCache) remove(key string) error {
 }
 
 func (c *lruTtlCache) removeTimeOutKey() error {
-	for {
+	length := c.timeOrderList.Len()
+
+	for i := 0; i < length; i++ {
 		frontEleKey := c.timeOrderList.Front().Value.(string)
 		frontIdx := c.index[frontEleKey]
 		if frontIdx.expireTime > int(time.Now().Unix()) {
-			return nil
+			break
 		}
 		c.remove(frontEleKey)
 	}
+
+	return nil
 }
