@@ -103,7 +103,7 @@ func (c *lfuCache) Set(key string, value interface{}) error {
 	}
 
 	if len(c.heap) == c.cap {
-		removeItem := heap.Pop(&c.heap).(lfuCacheIdx)
+		removeItem := heap.Pop(&c.heap).(*lfuCacheIdx)
 		delete(c.index, removeItem.key)
 	}
 
