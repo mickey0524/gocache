@@ -38,6 +38,16 @@ func NewGoCache(valueGetter func(string) (interface{}, error),
 	}
 }
 
+func NewGoLFUCache(valueGetter func(string) (interface{}, error),
+	valueMutiGetter func([]string) (map[string]interface{}, error),
+	cap int) *goCache {
+	return &goCache{
+		valueGetter:     valueGetter,
+		valueMutiGetter: valueMutiGetter,
+		cache:           initLFUCache(cap),
+	}
+}
+
 func (c *goCache) Get(key string) (interface{}, error) {
 	value, err := c.cache.Get(key)
 	if err != nil && c.valueGetter != nil {
